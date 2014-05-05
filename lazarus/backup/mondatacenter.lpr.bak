@@ -1,0 +1,337 @@
+program mondatacenter;
+
+{$mode objfpc}{$H+}
+
+uses
+  synaser, {$IFDEF UNIX} {$IFDEF UseCThreads}
+  cthreads, {$ENDIF} {$ENDIF}
+  Classes,
+  SysUtils,
+  dateutils,
+  laz_synapse,
+  CustApp { you can add units after this };
+
+type
+
+  { monitora_servidor }
+
+  monitora_servidor = class(TCustomApplication)
+  protected
+    retorno: string;
+    ultimaLeitura: TDateTime;
+    procedure DoRun; override;
+  public
+    constructor Create(TheOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure WriteHelp; virtual;
+    procedure PiscaMonitor;
+    procedure EnviaCmd(c: string);
+    procedure CriaArquivo(fileName: string; Text: string);
+  end;
+
+const
+  OP_PISCA = 'p';
+  OP_TEMPERATURA = 't';
+  OP_LUMINOSIDADE = 'l';
+  OP_PORTA = 'q';
+  OP_PRESENCA = 'r';
+  OP_LIGA_TV = 'o';
+  OP_LIGA_LUZ = '1';
+  OP_DESLIGA_LUZ = '0';
+  OP_LUZ = 's';
+
+  { monitora_servidor }
+
+  procedure monitora_servidor.DoRun;
+  var
+    ErrorMsg: string;
+    lus: boolean;
+  begin
+    // quick check parameters
+    //ErrorMsg:=CheckOptions('h','help');
+    //ErrorMsg:=CheckOptions('p','Pisca');
+
+    if ErrorMsg <> '' then
+    begin
+      ShowException(Exception.Create(ErrorMsg));
+      Terminate;
+      Exit;
+    end;
+
+    if HasOption('a', 'automatic') then
+    begin
+      ultimaLeitura := 0;
+      while (True) do
+      begin
+
+        if (FileExists('LIGA_AR')) then
+        begin
+          EnviaCmd(OP_LIGA_TV);
+          DeleteFile('LIGA_AR');
+        end;
+
+        if (FileExists('DESLIGA_LUS')) then
+        begin
+          EnviaCmd(OP_DESLIGA_LUZ);
+          DeleteFile('DESLIGA_LUS');
+        end;
+
+        if (FileExists('LIGA_LUS')) then
+        begin
+          EnviaCmd(OP_LIGA_LUZ);
+          DeleteFile('LIGA_LUS');
+        end;
+
+        if (FileExists('TEMPERATURA')) then
+        begin
+          EnviaCmd(OP_TEMPERATURA);
+          DeleteFile('TEMPERATURA');
+          CriaArquivo('RET_TEMPERATURA',retorno);
+        end;
+
+        if ( FileExists('LUMINOSIDADE') ) then
+        begin
+          EnviaCmd(OP_LUMINOSIDADE);
+          DeleteFile('LUMINOSIDADE');
+          CriaArquivo('RET_LUMINOSIDADE',retorno);
+        end;
+
+        if ( FileExists('PORTA') ) then
+        begin
+          EnviaCmd(OP_PORTA);
+          DeleteFile('PORTA');
+          CriaArquivo('RET_PORTA', retorno);
+        end;
+
+        if ( FileExists('PRESENCA') ) then
+        begin
+          EnviaCmd(OP_PRESENCA);
+          DeleteFile('PRESENCA');
+          CriaArquivo('RET_PRESENCA', retorno);
+        end;
+
+        if ( FileExists('LUS') ) then
+        begin
+          EnviaCmd(OP_LUZ);
+          DeleteFile('LUS');
+          CriaArquivo('RET_LUS',retorno);
+        end;
+
+        EnviaCmd(OP_TEMPERATURA);
+
+        EnviaCmd(OP_LUZ);
+        lus := Pos('1', retorno) > 0;
+
+        EnviaCmd(OP_PRESENCA);
+        if (not lus or (IncMinute(ultimaLeitura, 5) < now)) then
+        begin
+          EnviaCmd(OP_PRESENCA);
+          sleep(1000);
+          if (Pos('1', retorno) > 0) then
+          begin
+            EnviaCmd(OP_LIGA_LUZ);
+          end
+          else
+          begin
+            if (lus) then
+            begin
+              EnviaCmd(OP_DESLIGA_LUZ);
+
+            end;
+          end;
+          ultimaLeitura := now;
+        end
+        else
+        begin
+          if (Pos('1', retorno) > 0) then
+          begin
+            ultimaLeitura := Now;
+          end;
+        end;
+        EnviaCmd(OP_PORTA);
+
+        EnviaCmd(OP_LUMINOSIDADE);
+        Sleep(1000);
+      end;
+    end;
+
+    // parse parameters
+    if HasOption('h', 'help') then
+    begin
+      WriteHelp;
+      Terminate;
+      Exit;
+    end;
+
+    if HasOption('p', 'Pisca') then
+    begin
+      PiscaMonitor;
+      Terminate;
+      Exit;
+    end;
+
+    if (HasOption(OP_DESLIGA_LUZ, 'Desliga')) then
+    begin
+      EnviaCmd(OP_DESLIGA_LUZ);
+      Terminate;
+      Exit;
+    end;
+
+    if (HasOption(OP_LIGA_LUZ, 'Liga')) then
+    begin
+      EnviaCmd(OP_LIGA_LUZ);
+      Terminate;
+      Exit;
+    end;
+
+    if (HasOption(OP_LIGA_TV, 'Liga')) then
+    begin
+      EnviaCmd(OP_LIGA_TV);
+      Terminate;
+      Exit;
+    end;
+
+    if (HasOption(OP_LUMINOSIDADE, 'Liga')) then
+    begin
+      EnviaCmd(OP_LUMINOSIDADE);
+      Terminate;
+      Exit;
+    end;
+
+    if (HasOption(OP_LUZ, 'Liga')) then
+    begin
+      EnviaCmd(OP_LUZ);
+      Terminate;
+      Exit;
+    end;
+
+    if (HasOption(OP_PORTA, 'Liga')) then
+    begin
+      EnviaCmd(OP_PORTA);
+      Terminate;
+      Exit;
+    end;
+
+    if (HasOption(OP_PRESENCA, 'Liga')) then
+    begin
+      EnviaCmd(OP_PRESENCA);
+      Terminate;
+      Exit;
+    end;
+
+    if (HasOption(OP_TEMPERATURA, 'Liga')) then
+    begin
+      EnviaCmd(OP_TEMPERATURA);
+      Terminate;
+      Exit;
+    end;
+
+    { add your program here }
+
+    // stop program loop
+    Terminate;
+  end;
+
+
+
+  constructor monitora_servidor.Create(TheOwner: TComponent);
+  begin
+    inherited Create(TheOwner);
+    StopOnException := True;
+  end;
+
+  destructor monitora_servidor.Destroy;
+  begin
+    inherited Destroy;
+  end;
+
+  procedure monitora_servidor.WriteHelp;
+  begin
+    { add your help code here }
+    writeln('Usage: ', ExeName, ' -h');
+  end;
+
+  procedure monitora_servidor.PiscaMonitor;
+  var
+    ser: TBlockSerial;
+  begin
+    WriteLn('Piscando');
+    ser := TBlockSerial.Create;
+    ser.CloseSocket;
+    ;
+    sleep(30);
+    ser.Connect('//dev//ttyS0');
+    sleep(30);
+
+    if ser.LastError = 2 then
+      WriteLn('Erro ao conectar')
+    else
+      ser.Config(9600, 8, 'N', 0, False, False);
+    ser.Flush;
+    ser.SendString('p'#13#10);
+    ser.CloseSocket;
+    ser.Free;
+
+  end;
+
+  procedure monitora_servidor.EnviaCmd(c: string);
+  var
+    ser: TBlockSerial;
+    f: TextFile;
+  begin
+    ser := TBlockSerial.Create;
+    ser.CloseSocket;
+    sleep(30);
+    ser.Connect('//dev//ttyS0');
+    sleep(30);
+
+    if ser.LastError = 2 then
+      WriteLn('Erro ao conectar')
+    else
+      ser.Config(9600, 8, 'N', 0, False, False);
+
+    ser.SendString(c + #13#10);
+    sleep(30);
+    retorno := ser.Recvstring(100);
+
+    AssignFile(f, FormatDateTime('yyyymmdd',now)+ '_retorno.txt');
+    if (FileExists(FormatDateTime('yyyymmdd',now)+ '_retorno.txt')) then
+    begin
+      Append(f);
+    end
+    else
+    begin
+      Rewrite(f);
+    end;
+    WriteLn(f, DateTimeToStr(now) + ' ', retorno);
+    closefile(f);
+
+    WriteLn(retorno);
+    ser.CloseSocket;
+    ser.Free;
+
+  end;
+
+  procedure monitora_servidor.CriaArquivo(fileName: string; Text: string);
+  var
+    f: TextFile;
+  begin
+    AssignFile(f, fileName);
+    Rewrite(f);
+    WriteLn(f, Text);
+    CloseFile(f);
+
+  end;
+
+var
+  Application: monitora_servidor;
+
+{$R *.res}
+
+begin
+  Application := monitora_servidor.Create(nil);
+  Application.Title := 'Monitora datacenter';
+  Application.Run;
+  Application.Free;
+end.
+
