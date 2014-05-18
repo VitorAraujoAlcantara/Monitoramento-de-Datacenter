@@ -35,10 +35,9 @@ class ObjetoLeitor{
     protected function lerValorAtual($tipo){
         
         /* @var $query \mysqli_result */
-        $query = conexao::executaConsulta("SELECT * FROM leituras WHERE leituras.leit_tipo = '".$tipo."' ORDER BY leituras.leit_id DESC LIMIT 1 ");
-        $row = $query->fetch_row();
-        
-        return $row[2];
+        $query = conexao::executaConsulta("SELECT leit_valor FROM leituras WHERE leituras.leit_tipo = '".$tipo."' ORDER BY leituras.leit_id DESC LIMIT 1 ");
+        $row = $query->fetch_row();        
+        return $row[0];
     }
     
     public function lerIntervalo($tipo,$parametro){
@@ -53,6 +52,10 @@ class ObjetoLeitor{
             case 04: $tempo = 1440;
                 break;            
         }
+        if ( $tempo == 0){
+                $select = "SELECT DISTINCT DATE_FORMAT( `leit_data` , '%d/%c/%Y %H:%i:%ss' ) AS `leit_data` , AVG(leit_valor) AS `leit_valor`, leit_tipo  FROM leituras WHERE leituras.leit_tipo = '". $tipo."' AND leituras.leit_data >=  current_timestamp - INTERVAL 60 SECOND GROUP BY  DATE_FORMAT( `leit_data` , '%d/%c/%Y %H:%i:%ss' ) ORDER BY leituras.leit_data ";                            
+        }
+        else
          if ( $tempo > 30 )
         {
                 $select = "SELECT DISTINCT DATE_FORMAT( `leit_data` , '%d/%c/%Y %H' ) AS `leit_data` , AVG(leit_valor) AS `leit_valor`, leit_tipo  FROM leituras WHERE leituras.leit_tipo = '". $tipo."' AND leituras.leit_data >=  current_timestamp - INTERVAL ".$tempo." MINUTE GROUP BY  DATE_FORMAT( `leit_data` , '%d/%c/%Y %H' ) ORDER BY leituras.leit_data ";

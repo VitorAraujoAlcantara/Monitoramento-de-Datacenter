@@ -94,7 +94,7 @@ $tabela_lampada = $tabela_lampada == '' ? null : $tabela_lampada;
         <meta name="author" content="">
         <link rel="shortcut icon" href="../../assets/ico/favicon.ico">
 
-        <title>Monitoramento do DataCenter - V 1.0</title>
+        <title>Monitoramento do DataCenter - V 1.0 </title>
 
         <!-- Bootstrap core CSS -->
         <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -126,13 +126,13 @@ $tabela_lampada = $tabela_lampada == '' ? null : $tabela_lampada;
                     <a class="navbar-brand" href="#">Monitora Servidor</a>
                 </div>
                 <div class="navbar-collapse collapse">
-                  <ul class="nav navbar-nav navbar-right">
-                        <li <?=$par=='00'?'class="active"':''?>><a href="index.php?par=00">Atual</a></li>
-                        <li <?=$par=='01'?'class="active"':'' ?>><a href="index.php?par=01">Ultimos 10 minutos</a></li>
-                        <li <?=$par=='02'?'class="active"':'' ?>><a href="index.php?par=02">Ultimos 30 minutos</a></li>
-                        <li <?=$par=='03'?'class="active"':'' ?>><a href="index.php?par=03">Ultimas 6 horas</a></li>
-                        <li <?=$par=='04'?'class="active"':'' ?>><a href="index.php?par=04">Ultimas 24 horas</a></li>
-                        <li <?=$par=='05'?'class="active"':'' ?>><a href="index.php?par=05">Customizado</a></li>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li <?= $par == '00' ? 'class="active"' : '' ?>><a href="index.php?par=00">Atual</a></li>
+                        <li <?= $par == '01' ? 'class="active"' : '' ?>><a href="index.php?par=01">Ultimos 10 minutos</a></li>
+                        <li <?= $par == '02' ? 'class="active"' : '' ?>><a href="index.php?par=02">Ultimos 30 minutos</a></li>
+                        <li <?= $par == '03' ? 'class="active"' : '' ?>><a href="index.php?par=03">Ultimas 6 horas</a></li>
+                        <li <?= $par == '04' ? 'class="active"' : '' ?>><a href="index.php?par=04">Ultimas 24 horas</a></li>
+                        <li <?= $par == '05' ? 'class="active"' : '' ?>><a href="index.php?par=05">Customizado</a></li>
                     </ul>		    
                 </div>
             </div>
@@ -142,60 +142,64 @@ $tabela_lampada = $tabela_lampada == '' ? null : $tabela_lampada;
             <div class="row">
                 <div class="col-sm-3 col-md-2 sidebar">
                     <ul class="nav nav-sidebar">
-                        <li <?=$par=='00'?'class="active"':'' ?> ><a href="index.php?par=00">Atual</a></li>
-                        <li <?=$par=='01'?'class="active"':'' ?>><a href="index.php?par=01">Ultimos 10 minutos</a></li>
-                        <li <?=$par=='02'?'class="active"':'' ?>><a href="index.php?par=02">Ultimos 30 minutos</a></li>
-                        <li <?=$par=='03'?'class="active"':'' ?>><a href="index.php?par=03">Ultimas 6 horas</a></li>
-                        <li <?=$par=='04'?'class="active"':'' ?>><a href="index.php?par=04">Ultimas 24 horas</a></li>
-                        <li <?=$par=='05'?'class="active"':'' ?>><a href="index.php?par=05">Customizado</a></li>
+                        <li <?= $par == '00' ? 'class="active"' : '' ?> ><a href="index.php?par=00">Atual</a></li>
+                        <li <?= $par == '01' ? 'class="active"' : '' ?>><a href="index.php?par=01">Ultimos 10 minutos</a></li>
+                        <li <?= $par == '02' ? 'class="active"' : '' ?>><a href="index.php?par=02">Ultimos 30 minutos</a></li>
+                        <li <?= $par == '03' ? 'class="active"' : '' ?>><a href="index.php?par=03">Ultimas 6 horas</a></li>
+                        <li <?= $par == '04' ? 'class="active"' : '' ?>><a href="index.php?par=04">Ultimas 24 horas</a></li>
+                        <li <?= $par == '05' ? 'class="active"' : '' ?>><a href="index.php?par=05">Customizado</a></li>
                     </ul>
 
                 </div>
                 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-                    
+
                     <h1 class="page-header">Medi&ccedil;&otilde;es</h1>
                     <div class="row placeholders">
+                        <div id="relogios"><h1>Medições</h1></div>
                         <div class="col-xs-6 col-sm-3 placeholder">
                             <div id="relogio_temperatura" ></div>
                             <h4>Temperatura</h4>
-                            <span class="text-muted"> <?= $leitor->temperatura ?> </span>
+                            <span class="text-muted" id="lbl_temperatura"> <?= $leitor->temperatura ?> </span>
                         </div>
                         <div class="col-xs-6 col-sm-3 placeholder">
                             <div id="relogio_luminosidade"></div>
                             <h4>Luminosidade</h4>
-                            <span class="text-muted"><?= $leitor->luminosidade ?></span>
+                            <span class="text-muted" id="lbl_luminosidade"><?= $leitor->luminosidade ?></span>
                         </div>
                         <div class="col-xs-6 col-sm-2 ">
-                            <img width="150px" height="auto" src="<?= $leitor->porta == 'Aberta' ? 'img/porta_aberta.png' : 'img/porta_fechada.png' ?>" alt="porta"/>
+                            <img width="150px" height="auto" id="img_porta" src="<?= $leitor->porta == 'Aberta' ? 'img/porta_aberta.png' : 'img/porta_fechada.png' ?>" alt="porta"/>
                             <h4>Porta</h4>
-                            <span class="text-muted"><?= $leitor->porta ?></span>
+                            <span class="text-muted" id="lbl_porta"><?= $leitor->porta ?></span>
                         </div>
                         <div class="col-xs-6 col-sm-2 placeholder">
                             <img data-src="holder.js/200x200/auto/vine" class="img-responsive" alt="Generic placeholder thumbnail">
                             <h4>Presença</h4>
-                            <span class="text-muted"><?= $leitor->presenca ?></span>
+                            <span class="text-muted" id="lbl_presenca"><?= $leitor->presenca ?></span>
                         </div>
                         <div class="col-xs-6 col-sm-2 placeholder">
                             <img data-src="holder.js/200x200/auto/vine" class="img-responsive" alt="Generic placeholder thumbnail">
                             <h4>Lâmpada</h4>
-                            <span class="text-muted"><?= $leitor->lampada ?></span>
+                            <span class="text-muted" id="lbl_lampada"><?= $leitor->lampada ?></span>
                         </div>
-                    </div>                    
-<?php if (isset($tabela_temperatura)): ?>                        
-                        <div id="chart_temperatura" ></div>
-                    <?php endif; ?>
-                    <?php if (isset($tabela_presenca)): ?>                        
-                        <div id="chart_presenca" ></div>
-                    <?php endif; ?>                        
-                    <?php if (isset($tabela_luminosidade)): ?>                        
-                        <div id="chart_luminosidade" ></div>
-                    <?php endif; ?>                                                
-                    <?php if (isset($tabela_porta)): ?>                        
-                        <div id="chart_porta" ></div>
-                    <?php endif; ?>                             
-                    <?php if (isset($tabela_lampada)): ?>                        
-                        <div id="chart_lampada" ></div>
-                    <?php endif; ?>                                                                        
+                    </div>      
+                    <div id="charts">
+                        <img id="progresso" src="img/loading-bar-gif.gif" style="visibility: hidden; z-index: 9999; position: absolute;" />
+                        <?php if (isset($tabela_temperatura)): ?>                        
+                            <div class="chart_tempo_real" id="chart_temperatura" ></div>
+                        <?php endif; ?>
+                        <?php if (isset($tabela_presenca)): ?>                        
+                            <div class="chart_tempo_real" id="chart_presenca" ></div>
+                        <?php endif; ?>                        
+                        <?php if (isset($tabela_luminosidade)): ?>                        
+                            <div class="chart_tempo_real" id="chart_luminosidade" ></div>
+                        <?php endif; ?>                                                
+                        <?php if (isset($tabela_porta)): ?>                        
+                            <div class="chart_tempo_real" id="chart_porta" ></div>
+                        <?php endif; ?>                             
+                        <?php if (isset($tabela_lampada)): ?>                        
+                            <div class="chart_tempo_real" id="chart_lampada" ></div>
+                        <?php endif; ?>   
+                    </div>
                 </div>
             </div>
         </div>
@@ -204,6 +208,7 @@ $tabela_lampada = $tabela_lampada == '' ? null : $tabela_lampada;
         ================================================== -->
         <!-- Placed at the end of the document so the pages load faster -->
         <script src="js/jquery.min.js"></script>
+        <script src="js/jquery.timers-1.0.0.js"></script>
         <script src="js/bootstrap.min.js"></script>
         <script src="js/docs.min.js"></script>
         <script src="js/globalize.min.js"></script>
@@ -223,17 +228,17 @@ $tabela_lampada = $tabela_lampada == '' ? null : $tabela_lampada;
                     series: {
                         argumentField: 'arg',
                         valueField: 'val'
-                        //type: 'line'
+                                //type: 'line'
                     },
                     /*argumentAxis: {
-                        grid: {
-                            visible: true
-                        }
-                    },*/
+                     grid: {
+                     visible: true
+                     }
+                     },*/
                     /*tooltip: {
-                        enabled: true,
-                        color: '#A6C567'
-                    },*/
+                     enabled: true,
+                     color: '#A6C567'
+                     },*/
                     legend: {
                         visible: false
                     },
@@ -261,17 +266,17 @@ $tabela_lampada = $tabela_lampada == '' ? null : $tabela_lampada;
                     series: {
                         argumentField: 'arg',
                         valueField: 'val'
-                        //type: 'line'
+                                //type: 'line'
                     },
                     /*argumentAxis: {
-                        grid: {
-                            visible: true
-                        }
-                    },
-                    tooltip: {
-                        enabled: true,
-                        color: '#A6C567'
-                    },*/
+                     grid: {
+                     visible: true
+                     }
+                     },
+                     tooltip: {
+                     enabled: true,
+                     color: '#A6C567'
+                     },*/
                     legend: {
                         visible: false
                     },
@@ -376,8 +381,6 @@ $tabela_lampada = $tabela_lampada == '' ? null : $tabela_lampada;
                 });
 <?php endif; ?>
 
-
-
             $("#relogio_temperatura").dxCircularGauge({
                 title: "Termometro",
                 scale: {
@@ -445,6 +448,124 @@ $tabela_lampada = $tabela_lampada == '' ? null : $tabela_lampada;
                 value: <?= $leitor->luminosidade ?>,
                 subvalues: [930]
             });
+
+
+            $("#relogios").everyTime(1000, function(i) {
+                $.ajax({
+                    url: "atualiza_relogios.php",
+                    cache: false,
+                    success: function(html) {
+                        var lista = html.split(',');
+                        $("#lbl_temperatura").text(lista[4]);
+                        $("#relogio_temperatura").dxCircularGauge({
+                            value: lista[4]
+                        });
+                        $("#lbl_lampada").text(lista[0]);
+                        $("#lbl_luminosidade").text(lista[1]);
+                        $("#lbl_porta").text(lista[2]);
+                        $("#img_porta").attr('src', lista[2] === 'Aberta' ? 'img/porta_aberta.png' : 'img/porta_fechada.png')
+                        $("#lbl_presenca").text(lista[3]);
+
+                    }
+                });
+            });
+
+<?php if ($par == 00) : ?>
+                $("#charts").everyTime(10000, function(i) {
+                    $("#progresso").show();
+                    $(".chart_tempo_real").dxChart('instance').beginUpdate();
+                    // Temperatura
+                    $.ajax({
+                        url: "grafico_tempo_real.php?par=t",
+                        dataType: "json",
+                        contentType: "application/json",
+                        async: false,
+                        success: function(ret) {
+                            $("#chart_temperatura").dxChart({
+                                dataSource: ret,                                
+                                animation: {
+                                    duration: 0,
+                                    enabled: false
+                                }
+                            });
+                        },
+                    });
+                    
+                    // Luminosidade
+                    $.ajax({
+                        url: "grafico_tempo_real.php?par=l",
+                        dataType: "json",
+                        contentType: "application/json",
+                        async: false,
+                        success: function(ret) {
+                            $("#chart_luminosidade").dxChart({
+                                dataSource: ret,                                
+                                animation: {
+                                    duration: 0,
+                                    enabled: false
+                                }
+                            });
+                        },
+                    });
+                    
+                     // Presença
+                    $.ajax({
+                        url: "grafico_tempo_real.php?par=r",
+                        dataType: "json",
+                        contentType: "application/json",
+                        async: false,
+                        success: function(ret) {
+                            $("#chart_presenca").dxChart({
+                                dataSource: ret,                                
+                                animation: {
+                                    duration: 0,
+                                    enabled: false
+                                }
+                            });
+                        },
+                    });
+                    
+                     // Porta
+                    $.ajax({
+                        url: "grafico_tempo_real.php?par=q",
+                        dataType: "json",
+                        contentType: "application/json",
+                        async: false,
+                        success: function(ret) {
+                            $("#chart_porta").dxChart({
+                                dataSource: ret,                                
+                                animation: {
+                                    duration: 0,
+                                    enabled: false
+                                }
+                            });
+                        },
+                    });
+                    
+                     // Lâmpada
+                    $.ajax({
+                        url: "grafico_tempo_real.php?par=s",
+                        dataType: "json",
+                        contentType: "application/json",
+                        async: false,
+                        success: function(ret) {
+                            $("#chart_lampada").dxChart({
+                                dataSource: ret,                                
+                                animation: {
+                                    duration: 0,
+                                    enabled: false
+                                }
+                            });
+                        },
+                    });
+                    
+                    $(".chart_tempo_real").dxChart('instance').endUpdate();
+                    $("#progresso").hide();
+                });
+
+
+<?php endif; ?>
+
         </script>
     </body>
 </html>

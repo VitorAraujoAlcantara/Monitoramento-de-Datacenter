@@ -1,0 +1,105 @@
+object DataModule1: TDataModule1
+  OnCreate = DataModuleCreate
+  OldCreateOrder = False
+  Height = 231
+  HorizontalOffset = 281
+  VerticalOffset = 218
+  Width = 524
+  object MySQL55Connection1: TMySQL55Connection
+    Connected = True
+    LoginPrompt = False
+    DatabaseName = 'monitora_servidor'
+    KeepConnection = False
+    Password = '123Mudar'
+    Transaction = SQLTransaction1
+    UserName = 'root'
+    HostName = '192.168.0.100'
+    LogEvents = []
+    left = 122
+    top = 38
+  end
+  object qryInc: TSQLQuery
+    IndexName = 'DEFAULT_ORDER'
+    FieldDefs = <    
+      item
+        Name = 'leit_id'
+        DataType = ftAutoInc
+        Precision = -1
+        Size = 0
+      end    
+      item
+        Name = 'leit_data'
+        DataType = ftDateTime
+        Precision = -1
+        Size = 0
+      end    
+      item
+        Name = 'leit_valor'
+        DataType = ftInteger
+        Precision = -1
+        Size = 0
+      end    
+      item
+        Name = 'leit_tipo'
+        DataType = ftFixedChar
+        Precision = -1
+        Size = 1
+      end>
+    Active = True
+    Database = MySQL55Connection1
+    Transaction = SQLTransaction1
+    SQL.Strings = (
+      'SELECT * FROM leituras LIMIT 1;'
+    )
+    Params = <>
+    left = 119
+    top = 104
+    object qryIncleit_id: TAutoIncField
+      DisplayWidth = 10
+      FieldKind = fkData
+      FieldName = 'leit_id'
+      Index = 0
+      LookupCache = False
+      ProviderFlags = [pfInWhere, pfInKey]
+      ReadOnly = False
+      Required = False
+    end
+    object qryIncleit_data: TDateTimeField
+      DisplayWidth = 10
+      FieldKind = fkData
+      FieldName = 'leit_data'
+      Index = 1
+      LookupCache = False
+      ProviderFlags = []
+      ReadOnly = False
+      Required = False
+    end
+    object qryIncleit_valor: TLongintField
+      DisplayWidth = 10
+      FieldKind = fkData
+      FieldName = 'leit_valor'
+      Index = 2
+      LookupCache = False
+      ProviderFlags = [pfInUpdate]
+      ReadOnly = False
+      Required = False
+    end
+    object qryIncleit_tipo: TStringField
+      DisplayWidth = 1
+      FieldKind = fkData
+      FieldName = 'leit_tipo'
+      Index = 3
+      LookupCache = False
+      ProviderFlags = [pfInUpdate]
+      ReadOnly = False
+      Required = False
+      Size = 1
+    end
+  end
+  object SQLTransaction1: TSQLTransaction
+    Active = True
+    Database = MySQL55Connection1
+    left = 264
+    top = 48
+  end
+end
