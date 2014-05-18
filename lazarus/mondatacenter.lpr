@@ -9,16 +9,19 @@ uses
   SysUtils,
   dateutils,
   laz_synapse,
+  undmdados,
   CustApp { you can add units after this };
 
 type
-
   { monitora_servidor }
-
   monitora_servidor = class(TCustomApplication)
   protected
     retorno: string;
     ultimaLeitura: TDateTime;
+    ultimaTentativaLigarAr: TDateTime;
+    contadorTempo: TDateTime;
+    gravaRegistro: boolean;
+    arquivo: string;
     procedure DoRun; override;
   public
     constructor Create(TheOwner: TComponent); override;
@@ -27,6 +30,7 @@ type
     procedure PiscaMonitor;
     procedure EnviaCmd(c: string);
     procedure CriaArquivo(fileName: string; Text: string);
+    procedure EscreveArquivo(Text: string);
   end;
 
 const
@@ -40,118 +44,157 @@ const
   OP_DESLIGA_LUZ = '0';
   OP_LUZ = 's';
 
+  MSG_LIGANDO_LUS =  '.:: Presença detectada - Ligando luz! ::.';
+  MSG_DESLIGANDO_LUS = '.:: Entrando em modo de economida. Desligando luz! ::.';
+  MSG_LIGANDO_AR = '.:: Tentando ligar arcondicionado! ::.';
+
+  FILE_NAME_LIGA_AR = 'LIGA_AR';
+  FILE_NAME_DESLIGA_LUS = 'DESLIGA_LUS';
+  FILE_NAME_LIGA_LUS = 'LIGA_LUS';
+  FILE_NAME_TEMPERATURA = 'TEMPERATURA';
+  FILE_NAME_LUMINOSIDADE = 'LUMINOSIDADE';
+  FILE_NAME_PORTA  = 'PORTA';
+  FILE_NAME_PRESENCA = 'PRESENCA';
+  FILE_NAME_LUS = 'LUS';
+
+  FILE_NAME_RET_TEMPERATURA = 'RET_TEMPERATURA';
+  FILE_NAME_RET_LUS = 'RET_LUS';
+  FILE_NAME_RET_PRESENCA = 'RET_PRESENCA';
+  FILE_NAME_RET_LUMINOSIDADE = 'RET_LUMINOSIDADE';
+  FILE_NAME_RET_PORTA = 'RET_PORTA';
+
   { monitora_servidor }
 
   procedure monitora_servidor.DoRun;
   var
-    ErrorMsg: string;
     lus: boolean;
+    ultimaLeituraPresenca: TDateTime;
+    porta: string;
   begin
-    // quick check parameters
-    //ErrorMsg:=CheckOptions('h','help');
-    //ErrorMsg:=CheckOptions('p','Pisca');
+    DataModule1 := TDataModule1.Create(nil);
 
-    if ErrorMsg <> '' then
-    begin
-      ShowException(Exception.Create(ErrorMsg));
-      Terminate;
-      Exit;
-    end;
+    ultimaLeituraPresenca := -1;
+    ultimaTentativaLigarAr := now;
 
     if HasOption('a', 'automatic') then
     begin
+      gravaRegistro := False;
       ultimaLeitura := 0;
+      contadorTempo := now;
       while (True) do
       begin
-
-        if (FileExists('LIGA_AR')) then
+        if (IncSecond(now, 3) > ultimaLeitura) then
+        begin
+          gravaRegistro := True;
+          ultimaLeitura := now;
+        end;
+        if (FileExists(FILE_NAME_LIGA_AR)) then
         begin
           EnviaCmd(OP_LIGA_TV);
-          DeleteFile('LIGA_AR');
+          DeleteFile(FILE_NAME_LIGA_AR);
         end;
 
-        if (FileExists('DESLIGA_LUS')) then
+        if (FileExists(FILE_NAME_DESLIGA_LUS)) then
         begin
           EnviaCmd(OP_DESLIGA_LUZ);
-          DeleteFile('DESLIGA_LUS');
+          DeleteFile(FILE_NAME_DESLIGA_LUS);
         end;
 
-        if (FileExists('LIGA_LUS')) then
+        if (FileExists(FILE_NAME_LIGA_LUS)) then
         begin
           EnviaCmd(OP_LIGA_LUZ);
-          DeleteFile('LIGA_LUS');
+          DeleteFile(FILE_NAME_LIGA_LUS);
         end;
 
-        if (FileExists('TEMPERATURA')) then
+        if (FileExists(FILE_NAME_TEMPERATURA)) then
         begin
           EnviaCmd(OP_TEMPERATURA);
-          DeleteFile('TEMPERATURA');
-          CriaArquivo('RET_TEMPERATURA',retorno);
+          DeleteFile(FILE_NAME_TEMPERATURA);
+          CriaArquivo(FILE_NAME_RET_TEMPERATURA, retorno);
         end;
 
-        if ( FileExists('LUMINOSIDADE') ) then
+        if (FileExists(FILE_NAME_LUMINOSIDADE)) then
         begin
           EnviaCmd(OP_LUMINOSIDADE);
-          DeleteFile('LUMINOSIDADE');
-          CriaArquivo('RET_LUMINOSIDADE',retorno);
+          DeleteFile(FILE_NAME_LUMINOSIDADE);
+          CriaArquivo(FILE_NAME_RET_LUMINOSIDADE, retorno);
         end;
 
-        if ( FileExists('PORTA') ) then
+        if (FileExists(FILE_NAME_PORTA)) then
         begin
           EnviaCmd(OP_PORTA);
-          DeleteFile('PORTA');
-          CriaArquivo('RET_PORTA', retorno);
+          DeleteFile(FILE_NAME_PORTA);
+          CriaArquivo(FILE_NAME_RET_PORTA, retorno);
         end;
 
-        if ( FileExists('PRESENCA') ) then
+        if (FileExists(FILE_NAME_PRESENCA)) then
         begin
           EnviaCmd(OP_PRESENCA);
-          DeleteFile('PRESENCA');
-          CriaArquivo('RET_PRESENCA', retorno);
+          DeleteFile(FILE_NAME_PRESENCA);
+          CriaArquivo(FILE_NAME_RET_PRESENCA, retorno);
         end;
 
-        if ( FileExists('LUS') ) then
+        if (FileExists(FILE_NAME_LUS)) then
         begin
           EnviaCmd(OP_LUZ);
-          DeleteFile('LUS');
-          CriaArquivo('RET_LUS',retorno);
+          DeleteFile(FILE_NAME_LUS);
+          CriaArquivo(FILE_NAME_RET_LUS, retorno);
         end;
 
+        EnviaCmd(OP_PORTA);
+        porta := retorno;
         EnviaCmd(OP_TEMPERATURA);
+
+        // A cada 7 minutos chega a temperatura e se for o caso liga o ar condicionado
+        if (IncMInute(ultimaTentativaLigarAr, 7) < now) then
+        begin
+          EnviaCmd(OP_TEMPERATURA);
+          sleep(100);
+          if (StrToIntDef(Copy(retorno, 1, 4), 0) > 250) and (Pos('1', porta) > 0) then
+          begin
+            WriteLn(FormatDateTime('hh:mm:ss', now) +
+              MSG_LIGANDO_AR);
+            EnviaCmd(OP_LIGA_TV);
+          end;
+          ultimaTentativaLigarAr := now;
+        end;
 
         EnviaCmd(OP_LUZ);
         lus := Pos('1', retorno) > 0;
 
         EnviaCmd(OP_PRESENCA);
-        if (not lus or (IncMinute(ultimaLeitura, 5) < now)) then
+        if (not lus or (IncMinute(ultimaLeituraPresenca, 15) < now)) then
         begin
           EnviaCmd(OP_PRESENCA);
-          sleep(1000);
+          sleep(100);
           if (Pos('1', retorno) > 0) then
           begin
+            EscreveArquivo(MSG_LIGANDO_LUS);
             EnviaCmd(OP_LIGA_LUZ);
           end
           else
           begin
             if (lus) then
             begin
+              EscreveArquivo(
+                MSG_DESLIGANDO_LUS);
               EnviaCmd(OP_DESLIGA_LUZ);
-
             end;
           end;
-          ultimaLeitura := now;
+          ultimaLeituraPresenca := now;
         end
         else
         begin
           if (Pos('1', retorno) > 0) then
           begin
-            ultimaLeitura := Now;
+            ultimaLeituraPresenca := Now;
           end;
         end;
-        EnviaCmd(OP_PORTA);
+
 
         EnviaCmd(OP_LUMINOSIDADE);
-        Sleep(1000);
+        Sleep(100);
+        gravaRegistro := False;
       end;
     end;
 
@@ -163,7 +206,7 @@ const
       Exit;
     end;
 
-    if HasOption('p', 'Pisca') then
+    if HasOption(OP_PISCA, 'Pisca') then
     begin
       PiscaMonitor;
       Terminate;
@@ -229,6 +272,7 @@ const
     { add your program here }
 
     // stop program loop
+    DataModule1.Free;
     Terminate;
   end;
 
@@ -277,50 +321,67 @@ const
   procedure monitora_servidor.EnviaCmd(c: string);
   var
     ser: TBlockSerial;
-    f: TextFile;
   begin
     ser := TBlockSerial.Create;
-    ser.CloseSocket;
-    sleep(30);
-    ser.Connect('//dev//ttyS0');
-    sleep(30);
+    try
+      ser.CloseSocket;
+      sleep(30);
+      ser.Connect('//dev//ttyS0');
+      sleep(30);
 
-    if ser.LastError = 2 then
-      WriteLn('Erro ao conectar')
-    else
-      ser.Config(9600, 8, 'N', 0, False, False);
+      if ser.LastError = 2 then
+        WriteLn('Erro ao conectar')
+      else
+        ser.Config(9600, 8, 'N', 0, False, False);
 
-    ser.SendString(c + #13#10);
-    sleep(30);
-    retorno := ser.Recvstring(100);
+      ser.SendString(c + #13#10);
+      sleep(60);
+      retorno := ser.Recvstring(100);
+      if (gravaRegistro) then
+      begin
+        DataModule1.InsereItem(c, StrToIntDef(copy(retorno, 1, 4), 0));
+      end;
 
-    AssignFile(f, FormatDateTime('yyyymmdd',now)+ '_retorno.txt');
-    if (FileExists(FormatDateTime('yyyymmdd',now)+ '_retorno.txt')) then
-    begin
-      Append(f);
-    end
-    else
-    begin
-      Rewrite(f);
+      EscreveArquivo(retorno);
+
+      WriteLn(retorno);
+      ser.CloseSocket;
+    finally
+      ser.Free;
     end;
-    WriteLn(f, FormatDateTime('hh:mm:ss',now) + ' ', retorno);
-    closefile(f);
-
-    WriteLn(retorno);
-    ser.CloseSocket;
-    ser.Free;
-
   end;
 
   procedure monitora_servidor.CriaArquivo(fileName: string; Text: string);
   var
     f: TextFile;
   begin
-    AssignFile(f, fileName);
-    Rewrite(f);
-    WriteLn(f, Text);
-    CloseFile(f);
+    try
+      AssignFile(f, fileName);
+      Rewrite(f);
+      WriteLn(f, Text);
+    finally
+      CloseFile(f);
+    end;
+  end;
 
+  procedure monitora_servidor.EscreveArquivo(Text: string);
+  var
+    f: TextFile;
+  begin
+    try
+      AssignFile(f, FormatDateTime('yyyymmdd', now) + '_retorno.txt');
+      if (FileExists(FormatDateTime('yyyymmdd', now) + '_retorno.txt')) then
+      begin
+        Append(f);
+      end
+      else
+      begin
+        Rewrite(f);
+      end;
+      WriteLn(f, FormatDateTime('hh:mm:ss', now) + ' ', Text);
+    finally
+      closefile(f);
+    end;
   end;
 
 var
@@ -330,8 +391,6 @@ var
 
 begin
   Application := monitora_servidor.Create(nil);
-  Application.Title := 'Monitora datacenter';
   Application.Run;
   Application.Free;
 end.
-
