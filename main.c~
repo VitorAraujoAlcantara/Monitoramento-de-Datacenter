@@ -18,7 +18,7 @@ unsigned char novo_comando = 0;
 #define HC595_PORT   PORTB
 #define HC595_DDR    DDRB
 #define HC595_DS_POS PB5      //Data pin (DS) pin location
-#define HC595_SH_CP_POS PB3      //Shift Clock (SH_CP) pin location 
+#define HC595_SH_CP_POS PB3      //Shift Clock (SH_CP) pin location
 #define HC595_ST_CP_POS PB4      //Store Clock (ST_CP) pin location
 void HC595Init()
 {
@@ -96,41 +96,41 @@ void init()
    DDRB =  0b00000000;
    //PORTB = 0b00000000;
    set_bit(TCCR1A, COM1A0);
-   set_bit(TCCR1A, WGM12);
+   set_bit(TCCR1A, WGM10);
+   set_bit(TCCR1B, WGM13);
    set_bit(TCCR1B, CS11);
-   OCR1A = 8;
+   OCR1A = 13;
 
    // COLOCA AS PORTAS COMO LEITURA
    DDRB = 0xff;
-   PORTB = 0x00;   
-   
+   PORTB = 0x00;
+
    clr_bit(DDRB, PB1); // INFRAVERMELHO
-   
+
    DDRC = 0xff;
    // CONFIGURANDO LEITURA ANALOGICA TEMPERATURA
    clr_bit(DDRC, PC1);
-   PORTC = 0x00;   
+   PORTC = 0x00;
    clr_bit(DDRC, PC2);
 
     // CONFIGURANDO ADC
    ADMUX  = 0b11000001;  //Tensão interna de ref (1.1v) canal 0
-   ADCSRA = 0b11101110; /* Habilita o AD, habilita interrupção, modo de conversão contínua, 
-                           prescalar =  128*/
+   ADCSRA = 0b11101110; 
 
    ADCSRB = 0x00;       // Modo de conversão contínuo
-   clr_bit(DIDR0,0);    //desabilita pino PD0 como I/0, entrada do ADC0
+   clr_bit(DIDR0,0);    
    sei();
-   
+
 
    // INICIALIZA PORTAS DO SHIFT
    HC595Init();
-   
+
    // INICIALIZA USART
    USART_Inic(MYUBRR);
-   
+
    // INTERRUPÇÃO LEITURA
-   set_bit(UCSR0B, RXCIE0);   
-  
+   set_bit(UCSR0B, RXCIE0);
+
 }
 
 void showPirSensor()
@@ -138,8 +138,8 @@ void showPirSensor()
 
     // PIR SENSOR
    clr_bit(DDRD, PD2);
-   //set_bit(PORTD, PD2);
-   
+   set_bit(PORTD, PD2);
+
    if ( tst_bit(PIND, PD2) ) {
       escreve_USART("0001 p");
    }
@@ -148,7 +148,7 @@ void showPirSensor()
       escreve_USART("0000 p");
    }
    USART_Transmite('\r');
-   USART_Transmite('\n');  
+   USART_Transmite('\n');
 }
 
 void showTemperature()
@@ -170,16 +170,16 @@ void activeLamp(){
    set_bit(PORTB, PB2);
    escreve_USART("Liga lampada");
    USART_Transmite('\r');
-   USART_Transmite('\n'); 
-  
+   USART_Transmite('\n');
+
 }
 
 void desactiveLamp(){
-   set_bit(DDRB, PB2);   
+   set_bit(DDRB, PB2);
    clr_bit(PORTB, PB2);
    escreve_USART("Desliga lampada");
    USART_Transmite('\r');
-   USART_Transmite('\n');   
+   USART_Transmite('\n');
 }
 
 void showLamp(){
@@ -188,7 +188,7 @@ void showLamp(){
    }
    else
    {
-       escreve_USART("0000 x");   
+       escreve_USART("0000 x");
    }
    USART_Transmite('\r');
    USART_Transmite('\n');
@@ -213,700 +213,703 @@ void desligaPwm()
   //PORTD = 0b00000000;
 }
 
-void ligaTv(){
- ligaPwm(); 
+void ligaInfra(){
+/* CÓDIGO OBTIDO LENDO UM SENSOR IR 
+   NO MEU CASO É DE UM AR-CONDICIONADO
+   CONSUL */
+ ligaPwm();
   _delay_us(8711.6345); // 1 - 146
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(4694.4776); // 0 - 71
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(1719.1045); // 0 - 26
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(1719.1045); // 0 - 26
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(1652.9851); // 0 - 25
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(1719.1045); // 0 - 26
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(1719.1045); // 0 - 26
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(477.3498); // 1 - 8
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(477.3498); // 1 - 8
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(477.3498); // 1 - 8
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(1652.9851); // 0 - 25
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(477.3498); // 1 - 8
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(1785.2239); // 0 - 27
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(477.3498); // 1 - 8
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(1719.1045); // 0 - 26
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(477.3498); // 1 - 8
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(8463.2836); // 0 - 128
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(1719.1045); // 0 - 26
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(1719.1045); // 0 - 26
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(477.3498); // 1 - 8
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(1785.2239); // 0 - 27
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(477.3498); // 1 - 8
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(477.3498); // 1 - 8
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(1652.9851); // 0 - 25
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(477.3498); // 1 - 8
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(477.3498); // 1 - 8
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(1719.1045); // 0 - 26
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(1719.1045); // 0 - 26
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(477.3498); // 1 - 8
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(477.3498); // 1 - 8
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(477.3498); // 1 - 8
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(477.3498); // 1 - 8
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(477.3498); // 1 - 8
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(477.3498); // 1 - 8
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(462.8358); // 0 - 7
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(462.8358); // 0 - 7
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(462.8358); // 0 - 7
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(1719.1045); // 0 - 26
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(1652.9851); // 0 - 25
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(462.8358); // 0 - 7
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(1652.9851); // 0 - 25
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(8397.1642); // 0 - 127
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(462.8358); // 0 - 7
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(462.8358); // 0 - 7
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(462.8358); // 0 - 7
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(1652.9851); // 0 - 25
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(462.8358); // 0 - 7
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(462.8358); // 0 - 7
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(477.3498); // 1 - 8
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(477.3498); // 1 - 8
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(477.3498); // 1 - 8
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(477.3498); // 1 - 8
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(477.3498); // 1 - 8
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(477.3498); // 1 - 8
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(477.3498); // 1 - 8
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(477.3498); // 1 - 8
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(1652.9851); // 0 - 25
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(595.0746); // 0 - 9
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(537.0186); // 1 - 9
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(528.9552); // 0 - 8
-  ligaPwm(); 
+  ligaPwm();
   _delay_us(596.6873); // 1 - 10
-  desligaPwm(); 
+  desligaPwm();
   _delay_us(224277.0149); // 0 - 3392
   _delay_us(66.1194); // 0 - 1
-  
+
   escreve_USART("Liga Ar condicionado");
   USART_Transmite('\r');
-  USART_Transmite('\n');    
+  USART_Transmite('\n');
 
 }
 
@@ -919,17 +922,17 @@ void showPortSensor()
    }
    else
    {
-      escreve_USART("0001 s");         
+      escreve_USART("0001 s");
    }
    USART_Transmite('\r');
-   USART_Transmite('\n');     
+   USART_Transmite('\n');
 }
 
 void showLuminosidade()
-{  
+{
     set_bit(PORTC, PC2);
     _delay_ms(10);
-    ADMUX  = 0b11000010;  //Tensão interna de ref (1.1v) canal 2
+    ADMUX  = 0b11000010;  //Tensão interna de ref (1.1v) 
     _delay_ms(50);
    ident_num(temp,digitos);
    USART_Transmite(digitos[3]);
@@ -939,9 +942,9 @@ void showLuminosidade()
    USART_Transmite(' ');
    USART_Transmite('l');
    USART_Transmite('\r');
-   USART_Transmite('\n');  
-  
-    ADMUX  = 0b11000001;  //Tensão interna de ref (1.1v) canal 1    
+   USART_Transmite('\n');
+
+    ADMUX  = 0b11000001;  //Tensão interna de ref (1.1v) canal 1
     clr_bit(PORTC, PC2);
     comando = ' ';
 }
@@ -950,31 +953,31 @@ void showLuminosidade()
 int main (){
  init();
  uint8_t led_pattern[8]={
-                        0b10000000,                        
-                        0b11000000,
-                        0b11100000,
-                        0b11110000,
-                        0b11111000,
-                        0b11111100,
-                        0b11111110,                        
+                        0b00000001,
+                        0b00000011,
+                        0b00000111,
+                        0b00001111,
+                        0b00011111,
+                        0b00111111,
+                        0b01111111,
                         0b11111111};
 
 
   escreve_USART("CENTRAL DE MONITORAMENTO VERSÃO 1.0");
 
-   while ( 1 ) 
+   while ( 1 )
    {
-      //PORTC ^= _BV( PC5 );	
+      //PORTC ^= _BV( PC5 );
 
       //escreve_USART("HELLO WORD");
       /*for(s = 0; s < 8; s++ ){
-	      HC595Write(led_pattern[s]);    
+	      HC595Write(led_pattern[s]);
 	      _delay_ms(100);
 	   }*/
-	   
-	   switch ( temp ) 
+
+	   switch ( temp )
 	   {
-	      case 100 ... 150: 
+	      case 100 ... 150:
 	         HC595Write(led_pattern[0]);
 	         break;
 	     case 151 ... 180:
@@ -985,29 +988,29 @@ int main (){
 	         break;
         case 201 ... 220:
 	         HC595Write(led_pattern[3]);
-	         break; 	         
+	         break;
 	     case 221 ... 240:
 	         HC595Write(led_pattern[4]);
-	         break;    
+	         break;
 	      case 241 ... 260:
 	         HC595Write(led_pattern[5]);
 	         break;
 	      case 261 ... 280:
 	         HC595Write(led_pattern[6]);
-	         break;   	      
+	         break;
 	      default:
 	         HC595Write(led_pattern[7]);
-	      
+
 	   }
-	   
+
 	   if ( novo_comando == 1 ){
          int i ;
 
-         
+
 
 	      switch ( comando )
 	      {
-	         case 'p':   
+	         case 'p': // Comando para testar a comunicação serial
 	            for ( i = 0; i < 5 ; i++ ){
 	               HC595Write(led_pattern[0]);
 	               _delay_ms(1000);
@@ -1031,7 +1034,7 @@ int main (){
 	            showLamp();
 	            break;
 	         case 'o':
-	            ligaTv();
+	            ligaInfra();
 	            break;
 	         case 'r':
 	            showPirSensor();
@@ -1039,31 +1042,31 @@ int main (){
 	         case 'q':
 	            showPortSensor();
 	            break;
-	            
+
 	      }
 	      novo_comando = 0;
 	   }
-	   
+
      //escreve_USART("CENTRAL DE MONITORAMENTO VERSÃO 1.0\n\r");
      //showTemperature();
     //_delay_ms(1000);
-     
-   }	
+
+   }
 }
 
 ISR(USART_RX_vect){
    static char buffer_rx;
 
    if ( UDR0 == '\n' ){
-      comando = buffer_rx;                  
-      buffer_rx = ' ';           
-      novo_comando = 1;        
+      comando = buffer_rx;
+      buffer_rx = ' ';
+      novo_comando = 1;
    }
    else{
-      buffer_rx = UDR0;      
+      buffer_rx = UDR0;
    }
-  
-   
+
+
 }
 
 ISR(ADC_vect)
@@ -1078,10 +1081,11 @@ ISR(ADC_vect)
    }
    else
    {
-      
+
       if ( contador < 10 )
       {
-         buffer +=  ADC * (1100 / 1024);
+	// 1087 foi a leitura obtida no pino avref
+         buffer +=  ADC * (1084 / 1024);
          contador++;
       }
       else
@@ -1090,8 +1094,8 @@ ISR(ADC_vect)
          contador = 0;
          buffer = 0;
       }
-      
-      
+
+
       //iDelay = ADCH;
       //iDelay += (ADCL << 8);
       //iDelay = ADCW;

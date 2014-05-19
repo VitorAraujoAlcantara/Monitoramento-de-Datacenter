@@ -115,8 +115,7 @@ void init()
 
     // CONFIGURANDO ADC
    ADMUX  = 0b11000001;  //Tensão interna de ref (1.1v) canal 0
-   ADCSRA = 0b11101110; /* Habilita o AD, habilita interrupção, modo de conversão contínua,
-                           prescalar =  128*/
+   ADCSRA = 0b11101110; 
 
    ADCSRB = 0x00;       // Modo de conversão contínuo
    clr_bit(DIDR0,0);    //desabilita pino PD0 como I/0, entrada do ADC0
@@ -214,7 +213,10 @@ void desligaPwm()
   //PORTD = 0b00000000;
 }
 
-void ligaTv(){
+void ligaInfra(){
+/* CÓDIGO OBTIDO LENDO UM SENSOR IR 
+   NO MEU CASO É DE UM AR-CONDICIONADO
+   CONSUL */
  ligaPwm();
   _delay_us(8711.6345); // 1 - 146
   desligaPwm();
@@ -930,7 +932,7 @@ void showLuminosidade()
 {
     set_bit(PORTC, PC2);
     _delay_ms(10);
-    ADMUX  = 0b11000010;  //Tensão interna de ref (1.1v) canal 2
+    ADMUX  = 0b11000010;  //Tensão interna de ref (1.1v) 
     _delay_ms(50);
    ident_num(temp,digitos);
    USART_Transmite(digitos[3]);
@@ -1008,7 +1010,7 @@ int main (){
 
 	      switch ( comando )
 	      {
-	         case 'p':
+	         case 'p': // Comando para testar a comunicação serial
 	            for ( i = 0; i < 5 ; i++ ){
 	               HC595Write(led_pattern[0]);
 	               _delay_ms(1000);
@@ -1032,7 +1034,7 @@ int main (){
 	            showLamp();
 	            break;
 	         case 'o':
-	            ligaTv();
+	            ligaInfra();
 	            break;
 	         case 'r':
 	            showPirSensor();
@@ -1082,6 +1084,7 @@ ISR(ADC_vect)
 
       if ( contador < 10 )
       {
+	// 1087 foi a leitura obtida no pino avref
          buffer +=  ADC * (1084 / 1024);
          contador++;
       }
