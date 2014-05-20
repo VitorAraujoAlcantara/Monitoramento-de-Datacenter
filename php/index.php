@@ -149,10 +149,9 @@ $tabela_lampada = $tabela_lampada == '' ? null : $tabela_lampada;
                         <li <?= $par == '04' ? 'class="active"' : '' ?>><a href="index.php?par=04">Ultimas 24 horas</a></li>
                         <li <?= $par == '05' ? 'class="active"' : '' ?>><a href="index.php?par=05">Customizado</a></li>
                     </ul>
-
                 </div>
-                <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
 
+                <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
                     <h1 class="page-header">Medi&ccedil;&otilde;es</h1>
                     <div class="row placeholders">
                         <div id="relogios"><h1>Medições</h1></div>
@@ -223,12 +222,16 @@ $tabela_lampada = $tabela_lampada == '' ? null : $tabela_lampada;
                     dataSource: dataTemperatura,
                     title: 'Temperatura',
                     size: {
-                        height: 420
+                        height: 300
+                    },
+                    animation: {
+                        duration: 0,
+                        enabled: false
                     },
                     series: {
                         argumentField: 'arg',
-                        valueField: 'val'
-                                //type: 'line'
+                        valueField: 'val',
+                        type: 'spline'
                     },
                     /*argumentAxis: {
                      grid: {
@@ -243,7 +246,8 @@ $tabela_lampada = $tabela_lampada == '' ? null : $tabela_lampada;
                         visible: false
                     },
                     valueAxis: {
-                        //min: 12,
+                        min: 16,
+                        max: 24,
                         label: {
                             customizeText: function() {
                                 return this.valueText + '&#176C';
@@ -261,7 +265,11 @@ $tabela_lampada = $tabela_lampada == '' ? null : $tabela_lampada;
                     dataSource: dataLuminosidade,
                     title: 'Luminosidade',
                     size: {
-                        height: 420
+                        height: 300
+                    },
+                    animation: {
+                        duration: 0,
+                        enabled: false
                     },
                     series: {
                         argumentField: 'arg',
@@ -299,12 +307,16 @@ $tabela_lampada = $tabela_lampada == '' ? null : $tabela_lampada;
                     dataSource: dataPorta,
                     title: 'Sensor da Porta',
                     size: {
-                        height: 420
+                        height: 300
                     },
                     series: {
                         argumentField: 'arg',
                         valueField: 'val',
                         type: 'bar'
+                    },
+                    animation: {
+                        duration: 0,
+                        enabled: false
                     },
                     legend: {
                         visible: false
@@ -329,7 +341,7 @@ $tabela_lampada = $tabela_lampada == '' ? null : $tabela_lampada;
                     dataSource: dataPresenca,
                     title: 'Sensor de Presença',
                     size: {
-                        height: 420
+                        height: 300
                     },
                     series: {
                         argumentField: 'arg',
@@ -338,6 +350,10 @@ $tabela_lampada = $tabela_lampada == '' ? null : $tabela_lampada;
                     },
                     legend: {
                         visible: false
+                    },
+                    animation: {
+                        duration: 0,
+                        enabled: false
                     },
                     valueAxis: {
                         min: 0,
@@ -359,7 +375,7 @@ $tabela_lampada = $tabela_lampada == '' ? null : $tabela_lampada;
                     dataSource: dataLampada,
                     title: 'Status da lâmpada',
                     size: {
-                        height: 420
+                        height: 300
                     },
                     series: {
                         argumentField: 'arg',
@@ -368,6 +384,10 @@ $tabela_lampada = $tabela_lampada == '' ? null : $tabela_lampada;
                     },
                     legend: {
                         visible: false
+                    },
+                    animation: {
+                        duration: 0,
+                        enabled: false
                     },
                     valueAxis: {
                         min: 0,
@@ -448,7 +468,39 @@ $tabela_lampada = $tabela_lampada == '' ? null : $tabela_lampada;
                 value: <?= $leitor->luminosidade ?>,
                 subvalues: [930]
             });
+            var ultimaMedida;
+            function addData(chart, arg, val, b) {
 
+                if (arg !== ultimaMedida) {
+                    if (b) {
+                        ultimaMedida = arg;
+                    }
+                    var datasource = chart._dataSource;
+                    var itens = datasource._items;
+
+
+                    var obj = {
+                        arg: arg.split(' ')[1],
+                        val: val
+                    };
+
+                    if (itens.length > 60) {
+                        itens.shift();
+                    }
+
+                    itens.push(obj);
+
+                    chart.beginUpdate();
+
+                    chart.option({
+                        commonSeriesSettings: {
+                            point: {visible: false}
+                        }
+                    });
+                    chart.option('dataSource', itens);
+                    chart.endUpdate();
+                }
+            }
 
             $("#relogios").everyTime(1000, function(i) {
                 $.ajax({
@@ -462,15 +514,23 @@ $tabela_lampada = $tabela_lampada == '' ? null : $tabela_lampada;
                         });
                         $("#lbl_lampada").text(lista[0]);
                         $("#lbl_luminosidade").text(lista[1]);
+                        $("#relogio_luminosidade").dxCircularGauge({
+                            value: lista[1]
+                        });
                         $("#lbl_porta").text(lista[2]);
                         $("#img_porta").attr('src', lista[2] === 'Aberta' ? 'img/porta_aberta.png' : 'img/porta_fechada.png')
                         $("#lbl_presenca").text(lista[3]);
+<?php if ($par == 00) : ?>
+                            addData($("#chart_temperatura").dxChart('instance'), lista[5], lista[4]), false;
+                            addData($("#chart_luminosidade").dxChart('instance'), lista[5], lista[1], false);
+                            addData($("#chart_presenca").dxChart('instance'), lista[5], lista[3] === 'Não Detectado' ? 0 : 1, true);
+<?php endif; ?>
 
                     }
                 });
             });
 
-<?php if ($par == 00) : ?>
+<?php if ($par == 99) : ?>
                 $("#charts").everyTime(10000, function(i) {
                     $("#progresso").show();
                     $(".chart_tempo_real").dxChart('instance').beginUpdate();
@@ -482,7 +542,7 @@ $tabela_lampada = $tabela_lampada == '' ? null : $tabela_lampada;
                         async: false,
                         success: function(ret) {
                             $("#chart_temperatura").dxChart({
-                                dataSource: ret,                                
+                                dataSource: ret,
                                 animation: {
                                     duration: 0,
                                     enabled: false
@@ -490,7 +550,7 @@ $tabela_lampada = $tabela_lampada == '' ? null : $tabela_lampada;
                             });
                         },
                     });
-                    
+
                     // Luminosidade
                     $.ajax({
                         url: "grafico_tempo_real.php?par=l",
@@ -499,7 +559,7 @@ $tabela_lampada = $tabela_lampada == '' ? null : $tabela_lampada;
                         async: false,
                         success: function(ret) {
                             $("#chart_luminosidade").dxChart({
-                                dataSource: ret,                                
+                                dataSource: ret,
                                 animation: {
                                     duration: 0,
                                     enabled: false
@@ -507,8 +567,8 @@ $tabela_lampada = $tabela_lampada == '' ? null : $tabela_lampada;
                             });
                         },
                     });
-                    
-                     // Presença
+
+                    // Presença
                     $.ajax({
                         url: "grafico_tempo_real.php?par=r",
                         dataType: "json",
@@ -516,7 +576,7 @@ $tabela_lampada = $tabela_lampada == '' ? null : $tabela_lampada;
                         async: false,
                         success: function(ret) {
                             $("#chart_presenca").dxChart({
-                                dataSource: ret,                                
+                                dataSource: ret,
                                 animation: {
                                     duration: 0,
                                     enabled: false
@@ -524,8 +584,8 @@ $tabela_lampada = $tabela_lampada == '' ? null : $tabela_lampada;
                             });
                         },
                     });
-                    
-                     // Porta
+
+                    // Porta
                     $.ajax({
                         url: "grafico_tempo_real.php?par=q",
                         dataType: "json",
@@ -533,7 +593,7 @@ $tabela_lampada = $tabela_lampada == '' ? null : $tabela_lampada;
                         async: false,
                         success: function(ret) {
                             $("#chart_porta").dxChart({
-                                dataSource: ret,                                
+                                dataSource: ret,
                                 animation: {
                                     duration: 0,
                                     enabled: false
@@ -541,8 +601,8 @@ $tabela_lampada = $tabela_lampada == '' ? null : $tabela_lampada;
                             });
                         },
                     });
-                    
-                     // Lâmpada
+
+                    // Lâmpada
                     $.ajax({
                         url: "grafico_tempo_real.php?par=s",
                         dataType: "json",
@@ -550,7 +610,7 @@ $tabela_lampada = $tabela_lampada == '' ? null : $tabela_lampada;
                         async: false,
                         success: function(ret) {
                             $("#chart_lampada").dxChart({
-                                dataSource: ret,                                
+                                dataSource: ret,
                                 animation: {
                                     duration: 0,
                                     enabled: false
@@ -558,10 +618,11 @@ $tabela_lampada = $tabela_lampada == '' ? null : $tabela_lampada;
                             });
                         },
                     });
-                    
+
                     $(".chart_tempo_real").dxChart('instance').endUpdate();
                     $("#progresso").hide();
-                });
+                }
+                );
 
 
 <?php endif; ?>
