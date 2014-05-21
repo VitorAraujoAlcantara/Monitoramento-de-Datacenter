@@ -170,13 +170,13 @@ $tabela_lampada = $tabela_lampada == '' ? null : $tabela_lampada;
                             <h4>Porta</h4>
                             <span class="text-muted" id="lbl_porta"><?= $leitor->porta ?></span>
                         </div>
-                        <div class="col-xs-6 col-sm-2 placeholder">
-                            <img data-src="holder.js/200x200/auto/vine" class="img-responsive" alt="Generic placeholder thumbnail">
+                        <div class="col-xs-6 col-sm-2">
+                            <img width="150px" height="auto" id="img_presenca" src="<?= $leitor->porta == 'Detectado' ? 'img/intrusion-detection.png' : 'img/intrusion-not-detection.png' ?>" alt="porta"/>
                             <h4>Presença</h4>
                             <span class="text-muted" id="lbl_presenca"><?= $leitor->presenca ?></span>
                         </div>
-                        <div class="col-xs-6 col-sm-2 placeholder">
-                            <img data-src="holder.js/200x200/auto/vine" class="img-responsive" alt="Generic placeholder thumbnail">
+                        <div class="col-xs-6 col-sm-2">
+                            <img width="150px" height="auto" id="img_lampada" src="<?= $leitor->lampada == 'Ligada' ? 'img/lampada_acesa.png' : 'img/lampada_apagada.png' ?>" alt="porta"/>
                             <h4>Lâmpada</h4>
                             <span class="text-muted" id="lbl_lampada"><?= $leitor->lampada ?></span>
                         </div>
@@ -513,13 +513,15 @@ $tabela_lampada = $tabela_lampada == '' ? null : $tabela_lampada;
                             value: lista[4]
                         });
                         $("#lbl_lampada").text(lista[0]);
+                        $("#img_lampada").attr('src', lista[0] === 'Ligada' ? 'img/lampada_acesa.png' : 'img/lampada_apagada.png');
                         $("#lbl_luminosidade").text(lista[1]);
                         $("#relogio_luminosidade").dxCircularGauge({
                             value: lista[1]
                         });
                         $("#lbl_porta").text(lista[2]);
-                        $("#img_porta").attr('src', lista[2] === 'Aberta' ? 'img/porta_aberta.png' : 'img/porta_fechada.png')
+                        $("#img_porta").attr('src', lista[2] === 'Aberta' ? 'img/porta_aberta.png' : 'img/porta_fechada.png');
                         $("#lbl_presenca").text(lista[3]);
+                        $("#img_presenca").attr('src', lista[3] === 'Detectado' ? 'img/intrusion-detection.png' : 'img/intrusion-not-detection.png');
 <?php if ($par == 00) : ?>
                             addData($("#chart_temperatura").dxChart('instance'), lista[5], lista[4]), false;
                             addData($("#chart_luminosidade").dxChart('instance'), lista[5], lista[1], false);
